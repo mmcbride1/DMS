@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+<passphrase>_hx-Qb__</passphrase>
+<command>gpg --no-tty --batch --passphrase-fd 0 --status-fd 1 --output</command>
+<datadir>/opt/share/data</datadir>
+<importdir>/home/abgr_edw</importdir>
+<faileddir>/opt/share/failed</faileddir>
+<archive>/opt/share/archive</archive>
+<logfile>/var/log/manager</logfile>
+<from>spryalerts@gmail.com</from>
+<host>ssl://smtp.gmail.com</host>
+<port>465</port>
+<user>spryalerts@gmail.com</user>
+<pass>spry1234</pass>
+</configuration> 
