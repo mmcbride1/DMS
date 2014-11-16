@@ -10,7 +10,7 @@ require_once 'UpdateMessage.php';
    * DocumentManager
    * 
    * 
-   * @package N/A    
+   * @package DMS    
    * Scans the Avis import directory 
    * for any new files. If new files
    * are found, an initial decryption
@@ -532,7 +532,7 @@ class DocumentManager {
 
       foreach ($dir as $file) {
       
-      if($cron->doneLoading("$this->impt/$file")) {
+      if($cron->doneloading("$this->impt/$file")) {
       
       foreach($this->inprog as $k => $v) {
       

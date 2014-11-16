@@ -1,5 +1,8 @@
 <?php
 
+require_once 'JobManager.php';
+require_once 'UpdateMessage.php';
+
  /**
    * Exporter
    * 
@@ -19,6 +22,14 @@ class Exporter {
 
    var $conf;
 
+   /* hold job object */
+
+   private $job;
+   
+   /* hold export updates */
+   
+   private $scan = array();
+
    /**
     * Construct
     *
@@ -35,11 +46,15 @@ class Exporter {
 
      /* check if process is running */
 
-     $this->pidexst();
+     $this->job = new JobManager();
 
      /* run process */
 
      $this->carryout($this->conf['path2']);
+     
+     /* mail updates */
+     
+     $this->get();
 
    }
 
@@ -54,87 +69,6 @@ class Exporter {
       $ini = parse_ini_file('exports.ini');
 
       return $ini;
-
-   }
-
-   /**
-    * Get the state
-    * of the file 
-    * being copied.
-    * For scp purposes
-    **/
-
-   function size($cmd) {
-
-      return explode(" ", exec($cmd));
-
-   }
-
-   /**
-    * Encrypt control:
-    * incase the next 
-    * iteraton executes
-    * while file is still
-    * loading from source
-    **/
-
-   function doneloading($file) {
-
-      $cmd = "ls -l $file";
-
-      $s1 = $this->size($cmd);
-
-      sleep(10);
-
-      $s2 = $this->size($cmd);
-
-      return ($s1[4] == $s2[4]); 
-
-   }
-
-   /**
-    * For cron control.
-    * There is no way to
-    * tell how long 
-    * encryption will take,
-    * so we don't want jobs
-    * overlapping
-    **/
-
-   function prssflag() {
-
-      $pid = $this->conf['pid'];
-
-      $f = fopen($pid, 'w');
-
-      fclose($f);
-
-      return;
-
-   }
-
-   /**
-    * Look for the
-    * pid file and
-    * exit if present
-    * else continue
-    **/
-
-   function pidexst() {
-
-      $f = $this->conf['pid'];
-
-      if(file_exists($f)) {
-
-         exit();
-
-      }
-
-      else {
-
-         return;
-
-      }
 
    }
 
@@ -158,6 +92,36 @@ class Exporter {
 
       return;
 
+    }
+    
+   /**
+    * For every export 
+    * file that is 
+    * successfully 
+    * encrypted, send a
+    * developer update
+    **/
+    
+    function get() {
+    
+       $upd = $this->scan;
+       
+       if(count($upd) > 0) {
+       
+          $msg = $this->conf['msg']."\n";
+          
+          foreach($upd as $u) {
+          
+             $msg .= "$f\n";
+          
+          }
+          
+          $alert = new UpdateMessage($msg);
+       
+       }
+       
+       return;
+    
     }
 
    /**
@@ -214,6 +178,8 @@ class Exporter {
    function move($full, $file) {
 
       $share = $this->conf['path1'];
+      
+      array_push($this->scan, "$file");
 
       rename("$full.gpg", "$share$file.gpg");
 
@@ -231,33 +197,35 @@ class Exporter {
 
       $this->dirc($path);
 
-      $this->prssflag();
+      $cron = $this->job;
+
+      $cron->prssflag();
 
       foreach(scandir($path) as $file) {
 
-         $full = "$path$file";
+      $full = "$path$file";
 
-         if('.' === $file || '..' === $file)
+      if('.' === $file || '..' === $file)
 
-         continue;
+      continue;
 
-         if($this->doneloading($full)) {
+      if($cron->doneloading($full)) {
 
-         $r = $this->encrypt($full);
+      $r = $this->encrypt($full);
 
-         if($r == 0) {
+      if($r == 0) {
 
-            unlink($full);
+      unlink($full);
 
-            $this->move($full, $file);
+      $this->move($full, $file);
 
-         }
+      }
 
-         else {
+      else {
 
-            $fail = $this->conf['path3'];
+      $fail = $this->conf['path3'];
             
-            rename($full, "$fail$file");
+      rename($full, "$fail$file");
 
         }
 
@@ -267,7 +235,7 @@ class Exporter {
 
     }
 
-      unlink($this->conf['pid']);
+      $cron->killp();
 
       return;
 
