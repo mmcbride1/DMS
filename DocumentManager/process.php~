@@ -1,7 +1,6 @@
 <?php
 
 require_once 'DocumentManager.php';
-require_once 'Exporter.php';
 
   /**
    * Executes the managment 
@@ -36,9 +35,5 @@ if(!empty($arr)) {
 $message = new UpdateMessage($msg);
 
 }
-
-/* run the export scan */
-
-$exp = new Exporter();
 
 ?>
