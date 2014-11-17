@@ -7,7 +7,7 @@ require_once 'Mail.php';
    * UpdateMessage
    * 
    * 
-   * @package N/A    
+   * @package DMS 
    * Constructs the file update 
    * messages sent to the Avis
    * development list 

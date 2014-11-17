@@ -6,7 +6,7 @@ require_once 'constants.php';
    * Config
    * 
    * 
-   * @package N/A    
+   * @package DMS  
    * Sets all the configurations
    * for the DocumentManager
    * application
